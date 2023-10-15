@@ -1,0 +1,114 @@
+---
+title: "Untitled"
+author: "SAKHO"
+date: "2023-10-15"
+output:
+  pdf_document: 
+    number_sections: yes
+  word_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r  echo=FALSE,message=FALSE,warning=FALSE}
+library(dplyr)
+library(tidyverse)
+library(visdat)
+```
+
+```{r,echo=FALSE,warning=FALSE}
+knitr::opts_chunk$set(message=FALSE,warning=FALSE)
+```
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+table<- read.csv2("C:/Users/ousse/OneDrive/Bureau/MASTER 1/2023-2024/weuzy7_0.csv")
+
+table=table[,c(8:76)]
+row_names_column <- table$alim_nom_fr
+row.names(table) <- row_names_column 
+table=table[,-c(1,2)]
+
+
+
+# Fonction pour convertir une colonne en nombre
+convert_to_numeric <- function(col) {
+  as.numeric(gsub(",", ".", gsub("-", NA, col)))
+}
+# Appliquer la conversion à toutes les colonnes de caractères du dataframe
+table<- table %>%
+  mutate_if(is.character, convert_to_numeric)
+
+```
+
+# **INTRODUCTION **
+L'analyse en composantes principales (ACP) est une technique puissante de réduction de la dimensionnalité des données qui permet d'explorer et de visualiser la structure sous-jacente des données multivariées. Dans le cadre de notre projet, nous nous penchons sur l'application de l'ACP à une partie des données particulièrement précieux : la table de composition nutritionnelle Ciqual 2020.
+La table Ciqual 2020, élaborée par l'Observatoire des aliments au sein de l'Agence nationale de sécurité sanitaire de l’alimentation, de l’environnement et du travail (Anses), recense de manière exhaustive la composition nutritionnelle de milliers d'aliments couramment consommés en France. Elle fournit des informations détaillées sur les Macronutriments, les micronutriments, les valeurs énergétiques, et bien plus encore, pour un large éventail d'aliments, allant des fruits et légumes aux produits transformés.
+L'objectif de notre projet est de construire une fonction sous R permettant de réaliser une ACP sur  les fruits crus du jeu de données  table Ciqual 2020  qui décrit la composition nutritionnelle de 3185 aliments consommés en France pour 67 constituants (par exemple : glucides, amidon et sucres individuels, protéines, lipides et acides gras, vitamines, minéraux, valeurs énergétiques…), décrire et synthétiser les informations contenues  sur   le fichier Table Ciqual 2020_FR_2020 07 07SsInf0.csv en effectuant une description globale du fichier puis une description univariée et bivariée   et pour finir   une description  multivariée à l’aide de la fonction ACP.
+
+
+
+
+# **Description des données**
+
+Le jeu  de données "table Ciqual 2020”, géré par l'Agence nationale de sécurité sanitaire de l'alimentation, de l'environnement et du travail (Anses), représente une source d'information exhaustive et minutieuse se penchant sur la composition nutritionnelle  de 82 variétés de fruits. Cette compilation englobe une large gamme de fruits, des abricots aux bananes, en passant par les pommes avec ses différentes variétés, les cerises, les agrumes, les baies, et bien d'autres encore. Chaque entrée au sein de cette base de données reflète un fruit spécifique, offrant une multitude de données nutritionnelles qui se révèlent cruciales pour de nombreuses applications, qu'il s'agisse de la recherche en nutrition, de la planification de régimes alimentaires, de la recherche scientifique ou de l'élaboration de politiques de santé publique.
+
+Les variables associées à chaque fruit sont non seulement nombreuses, mais aussi riches en détails qui aux nombres de 76. Elles incluent diverses mesures d'énergie, à savoir l'énergie exprimée en kJ/100 g et en kcal/100 g, fournissant une vision précise de la valeur calorique. La teneur en eau, un élément clé pour évaluer la jutosité des fruits, est également consignée. Les informations concernant les protéines, les lipides, les glucides, les sucres, les fibres alimentaires, ainsi que les acides gras (qu'ils soient saturés, monoinsaturés ou polyinsaturés) sont minutieusement répertoriées, procurant ainsi une image complète de la composition chimique de chaque fruit.
+
+En complément des composants de base, les données englobent des détails sur des acides gras spécifiques tels que l'acide palmitique, l'acide stéarique, l'acide oléique et bien d'autres. Les vitamines, incluant des éléments majeurs comme les vitamines A, C, D, E et K, sont enregistrées, tout comme les minéraux essentiels, comprenant le calcium, le fer, le magnésium, le potassium, le cuivre, le zinc, le sélénium, ainsi que d'autres.
+
+En outre, cette base de données contient des informations sur des éléments moins familiers mais tout aussi importants, à savoir le cholestérol et le sel (chlorure de sodium). Ces détails se révèlent cruciaux pour l'évaluation de la qualité nutritionnelle des fruits, et peuvent grandement contribuer à éclairer les choix alimentaires des individus.
+
+Dans l'ensemble, cette base de données représente une ressource inestimable pour les chercheurs en nutrition, permettant d'analyser les régimes alimentaires, de comparer les avantages nutritionnels des différentes variétés de fruits, de soutenir l'étiquetage des produits alimentaires, et de participer à l'éducation du public concernant les bienfaits d'une consommation équilibrée de fruits. Elle couvre une large palette de variétés de fruits, des plus courantes aux plus exotiques, offrant ainsi une base de données d'une grande polyvalence, pouvant être employée dans diverses applications liées à la nutrition et à la santé.
+
+
+
+## **Données manquantes **
+
+Pour mieux comprendre la qualité de notre jeu de données sur la composition nutritionnelle des fruits crus, il est essentiel d'examiner la présence de données manquantes. Pour ce faire, nous avons utilisé la bibliothèque "visdat" dans RStudio. 
+L'utilisation de la fonction "vis_dat" nous a permis de générer une sortie visuelle informative, montrant clairement les valeurs manquantes dans notre jeu de données. Cette visualisation nous permet d'identifier les variables ou les échantillons qui comportent des lacunes, ce qui est fondamental pour garantir la fiabilité de nos analyses ultérieures. En comprenant la répartition des données manquantes, nous serons en mesure de prendre des décisions éclairées sur la manière de gérer ces valeurs manquantes, que ce soit par l'imputation de données, l'exclusion d'échantillons spécifiques, ou d'autres méthodes de gestion appropriées.
+
+```{r TH, echo=FALSE, message=FALSE, fig.cap="weuzy",fig.width=10, fig.height=6}
+vis_dat(table)
+```
+
+```{r, echo=FALSE}
+table= table[,-c(1,2,3,4,12,21,40,54,56,59,67)]
+table=table[,-c(14,17:33)]
+table=table[,-c(7:12)]
+table=table[,-c(9,12,20,25)]
+table=table[,-c(3)]
+dim(table)
+for (col in names(table)) {
+  # Calcul de la moyenne de la colonne
+  col_mean <- mean(table[[col]], na.rm = TRUE)
+  
+  # Remplacez les NA par la moyenne de la colonne
+  table[[col]] <- ifelse(is.na(table[[col]]), col_mean, table[[col]])
+}
+```
+
+
+```{r,echo=FALSE}
+vis_dat(table)
+
+```
+
+Avant de nous plonger dans une Analyse en Composantes Principales (ACP) de notre jeu de données sur la composition nutritionnelle des fruits, il est impératif de réaliser des analyses univariées et bivariées. Cette démarche nous aidera à mieux comprendre la distribution et les relations entre les variables présentes dans le jeu de données.
+
+
+## **Analyse univariée**
+
+Les analyses univariées nous permettront d'examiner chaque variable de manière individuelle, en calculant  les statistiques descriptives, telles que la moyenne (tendance centrale), l'écart-type (dispersion), la médiane (valeur centrale), les quartiles (répartition) et des graphiques comme les histogrammes et les boîtes à moustaches,qui nous aident à comprendre la distribution et les caractéristiques de chaque variable dans notre jeu de données. Cela nous permet de déterminer la variabilité, les tendances centrales et les valeurs extrêmes pour chaque composant nutritionnel des fruits. Ces analyses sont essentielles pour préparer le terrain pour des analyses plus avancées, comme l'Analyse en Composantes Principales (ACP).
+
+
+## **Analyse bivariée**
+
+Nous allons également mener des analyses bivariées pour explorer les liens potentiels entre certaines paires de variables. À titre d'exemple, nous allons examiner la relation entre "Eau" et "Glucides" pour comprendre comment la teneur en eau peut influencer la teneur en glucides des fruits. De même, nous allons analyser la relation entre "Chlorure" et "Sel" pour évaluer comment ces deux composants interagissent. Ces analyses bivariées nous aideront à mettre en lumière des tendances, des corrélations ou des relations significatives entre les variables, ce qui peut orienter nos futures analyses, y compris l'ACP, en identifiant des dimensions importantes à explorer."
+
+
+
+```{r}
+
+
+```
+
